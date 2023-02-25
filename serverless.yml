@@ -18,16 +18,23 @@ service: aws-cloudx-bike-shop-angular
 
 # You can pin your service to only deploy with a specific Serverless version
 # Check out our docs for more details
-frameworkVersion: "2"
+frameworkVersion: "3"
 
 provider:
   name: aws
-  runtime: nodejs12.x
+  runtime: nodejs14.x
   ## this is my personal AWS account. This must be skipped in you serverless.yml
   profile: default
 
 plugins:
   - serverless-finch
+  # 'serverless-single-page-app-plugin' is a custom plugin that located .serverless_plugins folder.
+  # Existing plugin (https://www.npmjs.com/package/serverless-single-page-app-plugin) doesn't have invalidate cache feature that often used during CI/CD events.
+  # How to build your own plugins: https://www.serverless.com/framework/docs/providers/aws/guide/plugins#service-local-plugin
+  - serverless-single-page-app-plugin
+  - serverless-s3-cleaner
+  - serverless-cloudfront-invalidate # add as the last plugin
+
 custom:
   ## Serverless-finch configuration
   client:
@@ -35,9 +42,29 @@ custom:
     distributionFolder: dist/app
     indexDocument: index.html
     manageResources: false
+  s3BucketName: ${self:custom.client.bucketName}
+
   ## Serverless-single-page-app-plugin configuration:
   s3LocalPath: ${self:custom.client.distributionFolder}/
-  s3BucketName: ${self:custom.client.bucketName}
+  serverless-s3-cleaner:
+    buckets:
+      - ${self:custom.client.bucketName}
+
+  cloudfrontInvalidate:
+    - distributionId: "E3MDAC4BV0UGCT" #conditional, distributionId or distributionIdKey is required.
+      distributionIdKey: "CDNDistributionId" #conditional, distributionId or distributionIdKey is required.
+      autoInvalidate: true # Can be set to false to avoid automatic invalidation after the deployment. Useful if you want to manually trigger the invalidation later. Defaults to true.
+      items: # one or more paths required
+        - "/*"
+      stage:
+        "dev" # conditional, the stage that this cloudfront invalidation should be created
+        # this should match the provider's stage you declared, e.g. "dev" but not "prod" in this case
+        # an invalidation for this distribution will be created when executing `sls deploy --stage dev`
+    - distributionId: "E3MDAC4BV0UGCT" #conditional, distributionId or distributionIdKey is required.
+      distributionIdKey: "CDNDistributionId" #conditional, distributionId or distributionIdKey is required.
+      items: # one or more paths required
+        - "/*"
+      # `stage` is omitted, an invalidation will be created for this distribution at all stages
 
 # you can overwrite defaults here
 #  stage: dev

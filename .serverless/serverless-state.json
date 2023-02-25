@@ -6,7 +6,7 @@
     },
     "provider": {
       "name": "aws",
-      "runtime": "nodejs12.x",
+      "runtime": "nodejs14.x",
       "profile": "default",
       "stage": "dev",
       "region": "us-east-1",
@@ -298,10 +298,32 @@
         "indexDocument": "index.html",
         "manageResources": false
       },
+      "s3BucketName": "aws-cloudx-bike-shop-angular",
       "s3LocalPath": "dist/app/",
-      "s3BucketName": "aws-cloudx-bike-shop-angular"
+      "serverless-s3-cleaner": {
+        "buckets": ["aws-cloudx-bike-shop-angular"]
+      },
+      "cloudfrontInvalidate": [
+        {
+          "distributionId": "E3MDAC4BV0UGCT",
+          "distributionIdKey": "CDNDistributionId",
+          "autoInvalidate": true,
+          "items": ["/*"],
+          "stage": "dev"
+        },
+        {
+          "distributionId": "E3MDAC4BV0UGCT",
+          "distributionIdKey": "CDNDistributionId",
+          "items": ["/*"]
+        }
+      ]
     },
-    "plugins": ["serverless-finch"],
+    "plugins": [
+      "serverless-finch",
+      "serverless-single-page-app-plugin",
+      "serverless-s3-cleaner",
+      "serverless-cloudfront-invalidate"
+    ],
     "pluginsData": {},
     "functions": {},
     "resources": {
@@ -425,10 +447,8 @@
     "configValidationMode": "warn",
     "serviceFilename": "serverless.yml",
     "initialServerlessConfig": {
-      "service": {
-        "$ref": "$[\"service\"][\"serviceObject\"]"
-      },
-      "frameworkVersion": "2",
+      "service": "aws-cloudx-bike-shop-angular",
+      "frameworkVersion": "3",
       "provider": {
         "$ref": "$[\"service\"][\"provider\"]"
       },
@@ -446,7 +466,7 @@
     "isDashboardMonitoringPreconfigured": false
   },
   "package": {
-    "artifactDirectoryName": "serverless/aws-cloudx-bike-shop-angular/dev/1676657574264-2023-02-17T18:12:54.264Z",
+    "artifactDirectoryName": "serverless/aws-cloudx-bike-shop-angular/dev/1677066420359-2023-02-22T11:47:00.359Z",
     "artifact": ""
   }
 }
