@@ -62,7 +62,7 @@ export class ProductsService extends ApiService {
       );
       // return this.http.get<Product[]>('/assets/products.json');
       return this.http.get<Product[]>(
-        'https://0t4mcfrc6g.execute-api.us-east-1.amazonaws.com/dev/products'
+        'https://oym36d3295.execute-api.us-east-1.amazonaws.com/dev/products'
       );
     }
 
